@@ -46,7 +46,8 @@ class ConvNet(object):
         # image format: NHWC
         print ('\tInit placeholders')
         self.inputs = tf.placeholder(dtype=tf.float32, shape=[None, 784], name='inputs')
-        self.labels = tf.placeholder(dtype=tf.float32, shape=[None, ], name='labels')
+        if self.mode.lower() == 'train':
+            self.labels = tf.placeholder(dtype=tf.float32, shape=[None, ], name='labels')
     
     def _build_convet(self):
         print ('\tInit ConvNet')
@@ -72,8 +73,9 @@ class ConvNet(object):
         fc1 = tf.layers.dense(flatten, self.fc1_hiddens, activation=tf.nn.relu, 
                             kernel_regularizer=tf.contrib.layers.l2_regularizer(0.1),
                             kernel_initializer=tf.contrib.layers.xavier_initializer(), name='FC1')
-        if (self.dropout > 0.0):
-            fc1 = tf.layers.dropout(fc1, rate=self.dropout, name='FC1Drop')
+        if self.mode.lower() == 'train':
+            if (self.dropout > 0.0):
+                fc1 = tf.layers.dropout(fc1, rate=self.dropout, name='FC1Drop')
 
         self.logits = tf.layers.dense(fc1, units=10, name='Logits')
         self.preds = tf.argmax(input=self.logits, axis=1)
@@ -125,7 +127,13 @@ class ConvNet(object):
         output_feed = [self.loss, self.accuracy, self.summary_op]
         outputs = sess.run(output_feed, input_feed)
         return outputs
-        
+
+    def predict_step(self, sess, input_batch):
+        if self.mode == 'inference':
+            input_feed = {self.inputs: input_batch}
+            output_feed = [self.preds]
+            output = sess.run(output_feed, input_feed)
+            return output[0]
 
     def save(self, sess, path, var_list=None, global_step=None):
         saver = tf.train.Saver()
