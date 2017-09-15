@@ -1,4 +1,5 @@
 import os
+import json
 import shutil
 import numpy as np
 import tensorflow as tf
@@ -38,6 +39,8 @@ tf.app.flags.DEFINE_integer('save_freq', 10000, 'Save model per # of steps')
 tf.app.flags.DEFINE_integer('display_freq', 100, 'Print step loss per # of steps')
 tf.app.flags.DEFINE_integer('eval_freq', 500, 'Evaluate model per # of steps')
 
+# General
+#tf.app.flags.DEFINE_string('model_name', 'ConvNet', 'Name of the model')
 tf.app.flags.DEFINE_string('logdir', 'logs', 'Name of output folder')
 tf.app.flags.DEFINE_string('task_name', 'CNN-Fashion', 'Name of this training task')
 tf.app.flags.DEFINE_bool('reset', True, 'Training start from stratch')
@@ -101,12 +104,24 @@ def train():
                     print ('GlobalSteps [ {} ]: testing loss = {}, with Accuracy {}'.format(
                         model.global_step.eval(), step_loss, accuracy))
 
+                if model.global_step.eval() % FLAGS.save_freq == 0:
+                    print ('Saving the model...')
+                    checkpoint_path = os.path.join(model_path, 'ConvNet')
+                    model.save(sess, checkpoint_path, global_step=model.global_step)
+                    # save the configuration
+                    json.dump(model.config, open('{}-{}.json'.format(checkpoint_path, model.global_step.eval()), 'wb'), indent=2)
+
             epoch_loss /= total_batch 
             loss_hist.append(epoch_loss)
             print ('Epoch [ {} ]: Average losses {}'.format(epoch_idx, epoch_loss))
 
         print ('Minimum loss is {} @ {} epoch'.format(np.min(loss_hist), np.argmin(loss_hist)))
 
+    print ('Saving the last model...')
+    checkpoint_path = os.path.join(model_path, 'ConvNet')
+    model.save(sess, checkpoint_path, global_step=model.global_step)
+    # save the configuration
+    json.dump(model.config, open('{}-{}.json'.format(checkpoint_path, model.global_step.eval()), 'wb'), indent=2)
     print ('Training terminated.')
 
 def main():
