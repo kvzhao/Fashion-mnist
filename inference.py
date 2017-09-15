@@ -1,5 +1,6 @@
 from __future__ import division
 import os
+import csv
 import shutil
 import gzip
 import numpy as np
@@ -46,6 +47,13 @@ def inference():
         labels = model.predict_step(sess, images)
 
         # Save the results to cvs
+        with open('results.csv', 'wb') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['id', 'label'])
+            for idx, label in enumerate(labels):
+                writer.writerow([idx, label])
+        
+        print ('Save the inference outcomes to results.csv.')
 
 def main():
     inference()

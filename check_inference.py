@@ -1,6 +1,7 @@
 from __future__ import division
 
 import os
+import csv
 import shutil
 import gzip
 import numpy as np
@@ -56,6 +57,15 @@ def inference():
                 corrects += 1
         accuracy = corrects/ 10000
         print ('Inference accuracy: {}'.format(accuracy))
+
+        # Save the results to cvs
+        with open('verified.csv', 'wb') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['y', 'yhat'])
+            for y, yhat in zip(labels, predictions):
+                writer.writerow([y, yhat])
+        
+        print ('Save the inference outcomes to verified.csv.')
 
 def main():
     inference()
