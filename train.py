@@ -17,16 +17,19 @@ print ('Data set with {} training exmaples, {} testing and {} validation example
 # NETWORK PARAMETERS
 tf.app.flags.DEFINE_integer('conv1_filters', 32, 'Number of filters of Convlutional layer')
 tf.app.flags.DEFINE_integer('conv2_filters', 64, 'Number of filters of Convlutional layer')
+tf.app.flags.DEFINE_integer('conv3_filters', 128, 'Number of filters of Convlutional layer')
 tf.app.flags.DEFINE_integer('conv1_kernel', 5, 'Kernel size of Convlutional filters')
-tf.app.flags.DEFINE_integer('conv2_kernel', 3, 'Kernel size of Convlutional filters')
-tf.app.flags.DEFINE_integer('fc1_hiddens', 128, 'Hidden Units of Fully connected layer')
+tf.app.flags.DEFINE_integer('conv2_kernel', 5, 'Kernel size of Convlutional filters')
+tf.app.flags.DEFINE_integer('conv3_kernel', 1, 'Kernel size of Convlutional filters')
+tf.app.flags.DEFINE_integer('fc1_hiddens', 512, 'Hidden Units of Fully connected layer')
+tf.app.flags.DEFINE_integer('fc2_hiddens', 256, 'Hidden Units of Fully connected layer')
 
 tf.app.flags.DEFINE_float('dropout', 0.5, 'Option of using dropout layer with ratio 0.5')
 
 # TRAINING PROCESS
-tf.app.flags.DEFINE_string('optimizer_type', 'SGD', 'Assign type of optimizers (SGD/AdaDelta/ADAM/RMSProp)')
+tf.app.flags.DEFINE_string('optimizer_type', 'RMSProp', 'Assign type of optimizers (SGD/AdaDelta/ADAM/RMSProp)')
 tf.app.flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate')
-tf.app.flags.DEFINE_float('decay_rate', 0.9, 'Decay of learning rate')
+tf.app.flags.DEFINE_float('decay_rate', 0.1, 'Decay of learning rate')
 tf.app.flags.DEFINE_integer('decay_steps', 15000, 'Learing rate decay after steps')
 tf.app.flags.DEFINE_float('clip_grad', 5.0, 'Maximum of gradient norm')
 
