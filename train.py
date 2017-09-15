@@ -16,10 +16,8 @@ print ('Data set with {} training exmaples, {} testing and {} validation example
 # NETWORK PARAMETERS
 tf.app.flags.DEFINE_integer('conv1_filters', 32, 'Number of filters of Convlutional layer')
 tf.app.flags.DEFINE_integer('conv2_filters', 64, 'Number of filters of Convlutional layer')
-
 tf.app.flags.DEFINE_integer('conv1_kernel', 5, 'Kernel size of Convlutional filters')
 tf.app.flags.DEFINE_integer('conv2_kernel', 3, 'Kernel size of Convlutional filters')
-
 tf.app.flags.DEFINE_integer('fc1_hiddens', 128, 'Hidden Units of Fully connected layer')
 
 tf.app.flags.DEFINE_float('dropout', 0.5, 'Option of using dropout layer with ratio 0.5')
