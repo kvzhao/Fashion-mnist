@@ -11,7 +11,11 @@ class ConvNet(object):
         self.conv1_kernel = config.conv1_kernel
         self.conv2_filters = config.conv2_filters
         self.conv2_kernel = config.conv2_kernel
+        self.conv3_filters = config.conv3_filters
+        self.conv3_kernel = config.conv3_kernel
+
         self.fc1_hiddens = config.fc1_hiddens
+        self.fc2_hiddens = config.fc2_hiddens
 
         self.global_step = tf.Variable(0, trainable=False, name='global_step')
 
@@ -68,16 +72,33 @@ class ConvNet(object):
                             padding="same", activation=tf.nn.relu, name='Conv2')
         pool2 = tf.layers.max_pooling2d(conv2, pool_size=[2, 2], strides=2, name='Pool2')
 
-        flatten = tf.contrib.layers.flatten(pool2)
+        conv3 = tf.layers.conv2d(pool2, 
+                            filters=self.conv3_filters,
+                            kernel_size=[self.conv3_kernel, self.conv3_kernel], 
+                            kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                            kernel_regularizer=tf.contrib.layers.l2_regularizer(0.1),
+                            padding="same", activation=tf.nn.relu, name='Conv3')
+        pool3 = tf.layers.max_pooling2d(conv3, pool_size=[2, 2], strides=2, name='Pool3')
 
-        fc1 = tf.layers.dense(flatten, self.fc1_hiddens, activation=tf.nn.relu, 
+        flatten = tf.contrib.layers.flatten(pool3)
+
+        fc1 = tf.layers.dense(flatten, self.fc1_hiddens, activation=tf.nn.relu,
                             kernel_regularizer=tf.contrib.layers.l2_regularizer(0.1),
                             kernel_initializer=tf.contrib.layers.xavier_initializer(), name='FC1')
         if self.mode.lower() == 'train':
             if (self.dropout > 0.0):
                 fc1 = tf.layers.dropout(fc1, rate=self.dropout, name='FC1Drop')
 
-        self.logits = tf.layers.dense(fc1, units=10, name='Logits')
+        fc2 = tf.layers.dense(fc1, self.fc2_hiddens, activation=tf.nn.relu,
+                            kernel_regularizer=tf.contrib.layers.l2_regularizer(0.1),
+                            kernel_initializer=tf.contrib.layers.xavier_initializer(), name='FC2')
+
+        if self.mode.lower() == 'train':
+            if (self.dropout > 0.0):
+                fc2 = tf.layers.dropout(fc2, rate=self.dropout, name='FC2Drop')
+
+        self.logits = tf.layers.dense(fc2, units=10, name='Logits')
+
         self.preds = tf.argmax(input=self.logits, axis=1)
 
         # build loss function if in train mode

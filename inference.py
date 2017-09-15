@@ -10,9 +10,12 @@ from convnet import ConvNet
 # NETWORK PARAMETERS
 tf.app.flags.DEFINE_integer('conv1_filters', 32, 'Number of filters of Convlutional layer')
 tf.app.flags.DEFINE_integer('conv2_filters', 64, 'Number of filters of Convlutional layer')
+tf.app.flags.DEFINE_integer('conv3_filters', 128, 'Number of filters of Convlutional layer')
 tf.app.flags.DEFINE_integer('conv1_kernel', 5, 'Kernel size of Convlutional filters')
-tf.app.flags.DEFINE_integer('conv2_kernel', 3, 'Kernel size of Convlutional filters')
-tf.app.flags.DEFINE_integer('fc1_hiddens', 256, 'Hidden Units of Fully connected layer')
+tf.app.flags.DEFINE_integer('conv2_kernel', 5, 'Kernel size of Convlutional filters')
+tf.app.flags.DEFINE_integer('conv3_kernel', 1, 'Kernel size of Convlutional filters')
+tf.app.flags.DEFINE_integer('fc1_hiddens', 512, 'Hidden Units of Fully connected layer')
+tf.app.flags.DEFINE_integer('fc2_hiddens', 256, 'Hidden Units of Fully connected layer')
 
 tf.app.flags.DEFINE_string('model_path', 'logs/CNN-Fashion', 'The path of trained model and checkpoints')
 tf.app.flags.DEFINE_string('data_path', 'test_data', 'Path of assigned testing data path')
