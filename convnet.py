@@ -13,14 +13,14 @@ class ConvNet(object):
         self.conv2_kernel = config.conv2_kernel
         self.fc1_hiddens = config.fc1_hiddens
 
-        # learning process
-        self.learning_rate = config.learning_rate
-        self.decay_rate = config.decay_rate
-        self.decay_steps = config.decay_steps
-
-        self.clip_grad = config.clip_grad
         self.global_step = tf.Variable(0, trainable=False, name='global_step')
+
+        # learning process
         if self.mode.lower() == 'train':
+            self.learning_rate = config.learning_rate
+            self.decay_rate = config.decay_rate
+            self.decay_steps = config.decay_steps
+            self.clip_grad = config.clip_grad
             self.learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step,
                                                             self.decay_steps, self.decay_rate, True)
             tf.summary.scalar('learning_rate', self.learning_rate)
@@ -58,6 +58,7 @@ class ConvNet(object):
                             filters=self.conv1_filters,
                             kernel_size=[self.conv1_kernel, self.conv1_kernel], 
                             kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                            kernel_regularizer=tf.contrib.layers.l2_regularizer(0.1),
                             padding="same", activation=tf.nn.relu, name='Conv1')
         pool1 = tf.layers.max_pooling2d(conv1, pool_size=[2, 2], strides=2, name='Pool1')
 
@@ -65,12 +66,14 @@ class ConvNet(object):
                             filters=self.conv2_filters,
                             kernel_size=[self.conv2_kernel, self.conv2_kernel], 
                             kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                            kernel_regularizer=tf.contrib.layers.l2_regularizer(0.1),
                             padding="same", activation=tf.nn.relu, name='Conv2')
         pool2 = tf.layers.max_pooling2d(conv2, pool_size=[2, 2], strides=2, name='Pool2')
 
         flatten = tf.contrib.layers.flatten(pool2)
 
         fc1 = tf.layers.dense(flatten, self.fc1_hiddens, activation=tf.nn.relu, 
+                            kernel_regularizer=tf.contrib.layers.l2_regularizer(0.1),
                             kernel_initializer=tf.contrib.layers.xavier_initializer(), name='FC1')
         if (self.dropout > 0.0):
             fc1 = tf.layers.dropout(fc1, rate=self.dropout, name='FC1Drop')
@@ -133,5 +136,7 @@ class ConvNet(object):
         print ('model (global steps: {})saved at {}'.format(global_step, save_path))
 
     def restore(self, sess, path, var_list=None):
-        pass
+        saver = tf.train.Saver(var_list)
+        saver.restore(sess, save_path=path)
+        print ('model restore from {}'.format(path))
         
