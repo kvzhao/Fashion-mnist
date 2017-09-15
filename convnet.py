@@ -17,21 +17,18 @@ class ConvNet(object):
 
         # learning process
         if self.mode.lower() == 'train':
+            self.dropout = config.dropout
             self.learning_rate = config.learning_rate
             self.decay_rate = config.decay_rate
             self.decay_steps = config.decay_steps
             self.clip_grad = config.clip_grad
             self.learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step,
                                                             self.decay_steps, self.decay_rate, True)
+            # strings
+            self.optimizer_type = config.optimizer_type
+
             tf.summary.scalar('learning_rate', self.learning_rate)
 
-        # options
-        self.dropout = config.dropout
-        # TODO: Batch normalization
-        self.batchnorm = config.batchnorm
-
-        # strings
-        self.optimizer_type = config.optimizer_type
     
     def build_model(self):
         print ('Start building model...')
@@ -135,8 +132,12 @@ class ConvNet(object):
         save_path = saver.save(sess, path, global_step)
         print ('model (global steps: {})saved at {}'.format(global_step, save_path))
 
-    def restore(self, sess, path, var_list=None):
-        saver = tf.train.Saver(var_list)
-        saver.restore(sess, save_path=path)
-        print ('model restore from {}'.format(path))
+    def restore(self, sess, path):
+        checkpoint = tf.train.get_checkpoint_state(path)
+        if checkpoint and checkpoint.model_checkpoint_path:
+            saver = tf.train.Saver()
+            saver.restore(sess, checkpoint.model_checkpoint_path)
+            print ('model restore from {}'.format(checkpoint.model_checkpoint_path))
+        else:
+            raise ValueError('Can not load from checkpoints')
         
