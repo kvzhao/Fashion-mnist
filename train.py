@@ -22,7 +22,6 @@ tf.app.flags.DEFINE_integer('conv2_kernel', 3, 'Kernel size of Convlutional filt
 tf.app.flags.DEFINE_integer('fc1_hiddens', 128, 'Hidden Units of Fully connected layer')
 
 tf.app.flags.DEFINE_float('dropout', 0.5, 'Option of using dropout layer with ratio 0.5')
-tf.app.flags.DEFINE_bool('batchnorm', False, 'Option of using batch normalization layer')
 
 # TRAINING PROCESS
 tf.app.flags.DEFINE_string('optimizer_type', 'SGD', 'Assign type of optimizers (SGD/AdaDelta/ADAM/RMSProp)')
@@ -31,9 +30,9 @@ tf.app.flags.DEFINE_float('decay_rate', 0.9, 'Decay of learning rate')
 tf.app.flags.DEFINE_integer('decay_steps', 15000, 'Learing rate decay after steps')
 tf.app.flags.DEFINE_float('clip_grad', 5.0, 'Maximum of gradient norm')
 
-tf.app.flags.DEFINE_integer('max_epochs', 10, 'Max epoch of training process')
+tf.app.flags.DEFINE_integer('max_epochs', 20, 'Max epoch of training process')
 tf.app.flags.DEFINE_integer('batch_size', 32, 'Batch size')
-tf.app.flags.DEFINE_integer('test_batch_size', 32, 'Batch size of testing data')
+tf.app.flags.DEFINE_integer('test_batch_size', 256, 'Batch size of testing data')
 
 tf.app.flags.DEFINE_integer('save_freq', 10000, 'Save model per # of steps')
 tf.app.flags.DEFINE_integer('display_freq', 100, 'Print step loss per # of steps')
@@ -64,8 +63,17 @@ def create_model(sess, FLAGS):
         shutil.rmtree(model_path)
         os.makedirs(model_path)
         print ('Remove existing model at {} and restart.'.format(model_path))
-
-    # handle restore: if exist, restore or delete
+    else:
+        print ('Restore from previous results...')
+        ckpt = tf.train.get_checkpoint_state(model_path)
+        if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
+            model.restore(sess,)
+            print ('Reloaded.')
+        else:
+            print ('FAIL TO LOAD CHECKPOINTS!')
+            shutil.rmtree(model_path)
+            os.makedirs(model_path)
+            print ('Remove existing model at {} and restart.'.format(model_path))
 
     # initialize variables
     sess.run(tf.global_variables_initializer())
@@ -108,8 +116,6 @@ def train():
                     print ('Saving the model...')
                     checkpoint_path = os.path.join(model_path, 'ConvNet')
                     model.save(sess, checkpoint_path, global_step=model.global_step)
-                    # save the configuration
-                    json.dump(model.config, open('{}-{}.json'.format(checkpoint_path, model.global_step.eval()), 'wb'), indent=2)
 
             epoch_loss /= total_batch 
             loss_hist.append(epoch_loss)
@@ -120,8 +126,6 @@ def train():
     print ('Saving the last model...')
     checkpoint_path = os.path.join(model_path, 'ConvNet')
     model.save(sess, checkpoint_path, global_step=model.global_step)
-    # save the configuration
-    json.dump(model.config, open('{}-{}.json'.format(checkpoint_path, model.global_step.eval()), 'wb'), indent=2)
     print ('Training terminated.')
 
 def main():
