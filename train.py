@@ -39,7 +39,6 @@ tf.app.flags.DEFINE_integer('display_freq', 100, 'Print step loss per # of steps
 tf.app.flags.DEFINE_integer('eval_freq', 500, 'Evaluate model per # of steps')
 
 # General
-#tf.app.flags.DEFINE_string('model_name', 'ConvNet', 'Name of the model')
 tf.app.flags.DEFINE_string('logdir', 'logs', 'Name of output folder')
 tf.app.flags.DEFINE_string('task_name', 'CNN-Fashion', 'Name of this training task')
 tf.app.flags.DEFINE_bool('reset', True, 'Training start from stratch')
